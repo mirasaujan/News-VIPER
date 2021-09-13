@@ -68,8 +68,10 @@ class NewsListPresenter: NewsListPresenterProtocol {
 }
 
 extension NewsListPresenter: NewsListInteractorObserver {
-    func newsListInteractor(_ interactor: NewsListInteractor, didFinishLoading viewModels: [NewsListViewController.CellViewModel]) {
+    func newsListInteractor(_ interactor: NewsListInteractor, didFinishLoading news: [News]) {
         DispatchQueue.main.async {
+            let viewModels = news.map { NewsListViewController.CellViewModel(title: $0.title,
+                                                                             description: $0.description) }
             self.view.stopRefreshControl()
             self.view.show(viewModels: viewModels, animated: false)
         }

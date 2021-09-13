@@ -20,7 +20,7 @@ protocol NewsListInteractorProtocol {
 }
 
 protocol NewsListInteractorObserver: AnyObject {
-    func newsListInteractor(_ interactor: NewsListInteractor, didFinishLoading viewModels: [NewsListViewController.CellViewModel])
+    func newsListInteractor(_ interactor: NewsListInteractor, didFinishLoading news: [News])
     func newsListInteractor(_ interactor: NewsListInteractor, didReceive error: Error)
 }
 
@@ -98,7 +98,7 @@ class NewsListInteractor: NewsListInteractorProtocol {
         }
     }
     
-    func fetchTopHeadlinesNews(page: Int, completion: @escaping ([NewsListViewController.CellViewModel], Error?) -> Void) {
+    func fetchTopHeadlinesNews(page: Int, completion: @escaping ([News], Error?) -> Void) {
         service.fetchNews(type: .topHeadlines(page)) { news, error in
             if page > 1 {
                 self.news.append(contentsOf: news)
@@ -106,13 +106,11 @@ class NewsListInteractor: NewsListInteractorProtocol {
                 self.news = news
             }
 
-            completion(self.news.map { NewsListViewController.CellViewModel(title: $0.title,
-                                                                            description: $0.description) },
-                       error)
+            completion(self.news, error)
         }
     }
     
-    func fetchEverythingNews(page: Int, completion: @escaping ([NewsListViewController.CellViewModel], Error?) -> Void) {
+    func fetchEverythingNews(page: Int, completion: @escaping ([News], Error?) -> Void) {
         service.fetchNews(type: .everything(page)) { news, error in
             if page > 1 {
                 self.news.append(contentsOf: news)
@@ -120,9 +118,7 @@ class NewsListInteractor: NewsListInteractorProtocol {
                 self.news = news
             }
 
-            completion(self.news.map { NewsListViewController.CellViewModel(title: $0.title,
-                                                                            description: $0.description) },
-                       error)
+            completion(self.news, error)
         }
     }
     
