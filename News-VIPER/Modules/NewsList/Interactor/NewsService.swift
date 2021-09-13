@@ -12,9 +12,9 @@ struct News: Codable {
     let title: String
     let description: String
     let content: String
-    let urlToImage: URL
+    let urlToImage: URL?
     
-    init(title: String, description: String, content: String, urlToImage: URL) {
+    init(title: String, description: String, content: String, urlToImage: URL? = nil) {
         self.title = title
         self.description = description
         self.content = content
@@ -74,16 +74,39 @@ struct NewsService {
         provider.request(type) { result in
             switch result {
             case .success(let response):
+                var filteredResponse: Response!
+                
                 do {
-                    let filteredResponse = try response.filterSuccessfulStatusCodes()
+                    filteredResponse = try response.filterSuccessfulStatusCodes()
+                } catch {
+                    completion([], NewsServiceError.statusError)
+                }
+                
+                do {
+                    let response = try filteredResponse.mapJSON()
+                    print(response)
                     let decodedResponse = try filteredResponse.map(NewsResponse.self)
                     completion(decodedResponse.articles, nil)
                 }
                 catch {
-                    completion([], MoyaError.stringMapping(response))
+                    completion([], NewsServiceError.mappingError)
                 }
             case .failure(let error):
                 completion([], error)
+            }
+        }
+    }
+    
+    enum NewsServiceError: LocalizedError {
+        case statusError
+        case mappingError
+        
+        var errorDescription: String? {
+            switch self {
+            case .statusError:
+                return "Status code is not ok"
+            case .mappingError:
+                return "Could not decode the model"
             }
         }
     }

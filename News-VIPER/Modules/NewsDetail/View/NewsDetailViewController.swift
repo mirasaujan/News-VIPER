@@ -79,7 +79,7 @@ class NewsDetailViewController: UIViewController, NewsDetailViewProtocol {
 }
 
 struct NewsViewModel {
-    let imageUrl: URL
+    let imageUrl: URL?
     let title: String
     let content: String
 }

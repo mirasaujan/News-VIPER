@@ -41,6 +41,7 @@ class NewsListRouter: NewsListRouterProtocol {
         let vc = NewsListViewController()
         let presenter = NewsListPresenter()
         let interactor = NewsListInteractor()
+        interactor.observer = presenter
         presenter.view = vc
         presenter.configureView()
         presenter.interactor = interactor
