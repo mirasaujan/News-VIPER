@@ -9,16 +9,23 @@ import UIKit
 import CoreData
 
 protocol NewsListStorageProtocol {
-    func add(news: News) -> Bool
+    func add(news: News)
     
     func fetch() -> [News]
 }
 
 class NewsListStorage: NewsListStorageProtocol {
-    func add(news: News) -> Bool {
+    static let newsListChangedNotificationName = NSNotification.Name("NewsListStorage.NewsList.Changed")
+    private let notificationCenter: NotificationCenter
+    
+    init(notificationCenter: NotificationCenter = NotificationCenter.default) {
+        self.notificationCenter = notificationCenter
+    }
+    
+    func add(news: News) {
         let appDelegate = (UIApplication.shared.delegate as? AppDelegate)
         guard let context = appDelegate?.persistentContainer.viewContext else {
-            return false
+            return
         }
         
         if let newsEntity = NSEntityDescription.insertNewObject(forEntityName: "NewsEntity",
@@ -29,10 +36,10 @@ class NewsListStorage: NewsListStorageProtocol {
             
             appDelegate?.saveContext()
             
-            return true
+            notificationCenter.post(name: Self.newsListChangedNotificationName,
+                                    object: self,
+                                    userInfo: ["newsList": fetch()])
         }
-        
-        return false
     }
     
     func fetch() -> [News] {

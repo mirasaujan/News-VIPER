@@ -9,7 +9,6 @@ import Foundation
 
 protocol FavoritesPresenterProtocol {
     func configureView()
-    func loadViewModels()
     func selectNews(at index: Int)
 }
 
@@ -30,12 +29,21 @@ class FavoritesPresenter: FavoritesPresenterProtocol {
     }
     
     func loadViewModels() {
-        interactor.fetchNews { [weak self] viewModels in
-            self?.view.show(viewModels: viewModels, animated: false)
-        }
+        let news = interactor.fetchNews().reversed()
+        let viewModels = news.map { NewsListViewController.CellViewModel(title: $0.title,
+                                                                              description: $0.description) }
+        view.show(viewModels: viewModels, animated: false)
     }
     
     func selectNews(at index: Int) {
         router.pushToAdDetail(interactor.news[index])
+    }
+}
+
+extension FavoritesPresenter: FavoritesInteractorObserver {
+    func favoritesInteractor(_ interactor: FavoritesInteractor, changed newsList: [News]) {
+        let viewModels = newsList.reversed().map { NewsListViewController.CellViewModel(title: $0.title,
+                                                                             description: $0.description) }
+        view.show(viewModels: viewModels, animated: false)
     }
 }

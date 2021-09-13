@@ -12,7 +12,9 @@ class FavoritesRouter: NewsListRouterProtocol {
         let vc = NewsListViewController()
         let presenter = FavoritesPresenter()
         presenter.view = vc
-        presenter.interactor = FavoritesInteractor()
+        let interactor = FavoritesInteractor()
+        interactor.observer = presenter
+        presenter.interactor = interactor
         presenter.configureView()
         
         let nc = UINavigationController(rootViewController: vc)
